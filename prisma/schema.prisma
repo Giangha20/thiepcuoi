@@ -1,0 +1,168 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Admin {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String   @default("Admin")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Wedding {
+  id                 String   @id @default(cuid())
+  slug               String   @unique @default("minh-anh-va-hoang-nam")
+  isPublished        Boolean  @default(true)
+  title              String   @default("Lễ Thành Hôn - Hoàng Nam & Minh Anh")
+  
+  // Groom Info
+  groomName          String   @default("Hoàng Nam")
+  groomFullName      String   @default("Nguyễn Hoàng Nam")
+  groomTitle         String   @default("Chú Rể")
+  groomBio           String   @default("Chàng kiến trúc sư yêu thiên nhiên, thích ghi lại những khoảnh khắc bình dị và luôn dành trọn tình yêu cho Minh Anh.")
+  groomPhoto         String   @default("https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=800&auto=format&fit=crop")
+  groomFather        String   @default("Nguyễn Văn Hùng")
+  groomMother        String   @default("Lê Thị Mai")
+  groomAddress       String   @default("Quận Hoàn Kiếm, Hà Nội")
+  groomPhone         String   @default("0912 345 678")
+  groomBankName      String   @default("Vietcombank")
+  groomBankAccount   String   @default("10123456789")
+  groomBankOwner     String   @default("NGUYEN HOANG NAM")
+  groomBankQr        String   @default("")
+
+  // Bride Info
+  brideName          String   @default("Minh Anh")
+  brideFullName      String   @default("Trần Lê Minh Anh")
+  brideTitle         String   @default("Cô Dâu")
+  brideBio           String   @default("Cô gái thiết kế đồ họa mộng mơ, luôn mỉm cười và tìm thấy niềm hạnh phúc ngọt ngào từ những điều giản dị nhất.")
+  bridePhoto         String   @default("https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop")
+  brideFather        String   @default("Trần Quang Minh")
+  brideMother        String   @default("Phạm Thị Bích Ngọc")
+  brideAddress       String   @default("Quận Ba Đình, Hà Nội")
+  bridePhone         String   @default("0987 654 321")
+  brideBankName      String   @default("MB Bank")
+  brideBankAccount   String   @default("9876543210")
+  brideBankOwner     String   @default("TRAN LE MINH ANH")
+  brideBankQr        String   @default("")
+
+  // Wedding Ceremony Time & Texts
+  weddingDate        DateTime @default("2026-12-25T11:00:00.000Z")
+  weddingLunarDate   String   @default("Ngày 16 tháng 11 năm Bính Ngọ")
+  invitationMessage  String   @default("Tình yêu không phải là nhìn nhau, mà là cùng nhau nhìn về một hướng. Trân trọng kính mời quý bạn bè và người thân đến chung vui cùng gia đình chúng tôi trong ngày trọng đại này.")
+  thankYouMessage    String   @default("Sự hiện diện và những lời chúc phúc ngọt ngào của bạn là món quà ý nghĩa nhất dành cho chúng tôi trên hành trình xây đắp tổ ấm mới. Xin chân thành cảm ơn!")
+  coverPhoto         String   @default("https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1600&auto=format&fit=crop")
+  envelopeTitle      String   @default("Wedding Invitation")
+  envelopeSubtitle   String   @default("Hoàng Nam & Minh Anh")
+  heroSubtitle       String   @default("SAVE OUR DATE")
+
+  // Theme & Appearance Customization
+  themeColor         String   @default("champagne") // champagne, rose_gold, sage_green, burgundy, dusty_blue
+  fontStyle          String   @default("classic_serif") // classic_serif, romantic_script, modern_sans
+  musicUrl           String   @default("https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=romantic-wedding-piano-113224.mp3")
+  musicTitle         String   @default("Until I Found You (Romantic Piano)")
+  musicAutoPlay      Boolean  @default(false)
+  showPetals         Boolean  @default(true)
+  showCountdown      Boolean  @default(true)
+  showTimeline       Boolean  @default(true)
+  showGallery        Boolean  @default(true)
+  showEvents         Boolean  @default(true)
+  showRsvp           Boolean  @default(true)
+  showWishes         Boolean  @default(true)
+  showGiftBox        Boolean  @default(true)
+  requireWishApproval Boolean @default(false)
+
+  // Relations
+  events             Event[]
+  timeline           TimelineMilestone[]
+  gallery            GalleryPhoto[]
+  wishes             Wish[]
+  rsvps              Rsvp[]
+  pageViews          PageView[]
+
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model Event {
+  id           String   @id @default(cuid())
+  weddingId    String
+  wedding      Wedding  @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  title        String   // Lễ Vu Quy, Lễ Thành Hôn, Tiệc Cưới
+  time         String   // "09:00", "11:30"
+  date         String   // "25 Tháng 12, 2026"
+  venueName    String   // "Trung tâm Tiệc cưới Trống Đồng Palace"
+  address      String   // "Số 65 Quán Sứ, Hoàn Kiếm, Hà Nội"
+  mapUrl       String   // Direct Google Maps link
+  mapEmbedUrl  String   // Embed iframe link or coordinates
+  photo        String   @default("")
+  order        Int      @default(0)
+  createdAt    DateTime @default(now())
+}
+
+model TimelineMilestone {
+  id           String   @id @default(cuid())
+  weddingId    String
+  wedding      Wedding  @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  date         String   // "15 Tháng 10, 2021"
+  title        String   // "Lần đầu gặp gỡ"
+  description  String   // "Một buổi chiều thu Hà Nội tại quán cà phê nhỏ ven hồ..."
+  photo        String   @default("")
+  order        Int      @default(0)
+  createdAt    DateTime @default(now())
+}
+
+model GalleryPhoto {
+  id           String   @id @default(cuid())
+  weddingId    String
+  wedding      Wedding  @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  url          String
+  caption      String   @default("")
+  featured     Boolean  @default(false)
+  order        Int      @default(0)
+  createdAt    DateTime @default(now())
+}
+
+model Wish {
+  id           String   @id @default(cuid())
+  weddingId    String
+  wedding      Wedding  @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  name         String
+  relationship String   @default("Bạn thân")
+  message      String
+  emoji        String   @default("❤️")
+  isApproved   Boolean  @default(true)
+  isPinned     Boolean  @default(false)
+  likes        Int      @default(0)
+  ipHash       String   @default("")
+  createdAt    DateTime @default(now())
+}
+
+model Rsvp {
+  id           String   @id @default(cuid())
+  weddingId    String
+  wedding      Wedding  @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  name         String
+  phone        String   @default("")
+  guestCount   Int      @default(1)
+  side         String   @default("groom") // "groom" | "bride" | "both"
+  isAttending  Boolean  @default(true)
+  notes        String   @default("")
+  createdAt    DateTime @default(now())
+}
+
+model PageView {
+  id           String   @id @default(cuid())
+  weddingId    String
+  wedding      Wedding  @relation(fields: [weddingId], references: [id], onDelete: Cascade)
+  device       String   @default("mobile") // "mobile" | "desktop" | "tablet"
+  userAgent    String   @default("")
+  referrer     String   @default("")
+  createdAt    DateTime @default(now())
+}
